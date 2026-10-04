@@ -1,0 +1,15 @@
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Variables de entorno (credenciales: NUNCA al repositorio)
+.env
+
+# Cache de Python
+__pycache__/
+*.pyc
+
+# IDEs
+.vscode/
+.idea/
