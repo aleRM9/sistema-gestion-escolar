@@ -1,0 +1,6 @@
+fastapi
+fastapi_controllers
+uvicorn
+psycopg2 
+sqlalchemy
+datetime
