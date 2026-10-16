@@ -1,0 +1,51 @@
+services:
+  # Servicio de base de datos
+  database:
+    container_name: liceo_db
+    image: postgres:18-alpine # Imágen oficial de PostgreSQL para Alpine
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root_password
+      POSTGRES_DB: database
+    ports:
+      - "5432:5432" # Puerto estándar de PostgreSQL
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Servicio de backend
+  backend:
+    container_name: backend
+    build: ./backend
+    restart: always
+    ports: 
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: database
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root_password
+      POSTGRES_DB: database
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck: # Verifica que PostgreSQL esté listo para recibir conexiones
+      test: ["CMD-SHELL", "pg_isready -U root"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on: 
+      database:
+        condition: service_healthy # Espera la verificación del healthcheck
+
+  # Servicio de frontend
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    restart: always
+    ports: 
+      - "3000:3000"
+    depends_on: 
+      - backend
+
+
+volumes:
+  postgres_data:
