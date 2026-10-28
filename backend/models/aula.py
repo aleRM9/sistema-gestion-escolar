@@ -6,6 +6,6 @@ class Aula(Base):
     __tablename__ = "aulas"
 
     aula_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    codigo:Mapped[str] = mapped_column(String(10), nullable=False)
+    codigo:Mapped[str] = mapped_column(String(10), unique=True, nullable=False)
     ubicacion: Mapped[str] = mapped_column(String(100), nullable=False)
     

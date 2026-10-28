@@ -1,5 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from exceptions import Conflicto, NoEncontrado
+
 from database import engine
 from models.base import Base
 from routers import inscripcion, materias, notas, horarios, calificaciones, reportes, aulas
@@ -26,6 +29,22 @@ origenes = [
     "http://localhost:3000", # Puerto del frontend
     "http://localhost:8000" # Puerto del backend
 ]
+
+# Handler de excepción "No encontrado"
+@app.exception_handler(NoEncontrado)
+async def _no_encontrado(_:Request, exc:NoEncontrado):
+    return JSONResponse(
+        status_code=404, 
+        content={"detail": exc.detalle}
+    )
+
+# Handler de excepción "Conflicto"
+@app.exception_handler(Conflicto)
+async def _conflicto(_:Request, exc:Conflicto):
+    return JSONResponse(
+        status_code=409,
+        content={"detail": exc.detalle}
+    )
 
 # Agregar el middleware del sistema
 app.add_middleware(

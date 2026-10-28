@@ -32,7 +32,7 @@ class Nota(Base):
     calificacion: Mapped[Decimal] = mapped_column(Numeric(4, 2), nullable=False)
     lapso: Mapped[int] = mapped_column(Integer, nullable=False)
     fecha_registro: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now()
+        DateTime, nullable=False, server_default=func.now()
     )
 
   

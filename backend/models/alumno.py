@@ -1,8 +1,11 @@
 from sqlalchemy import ForeignKey, Integer, String, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import date
-from .representante import Representante
+from typing import TYPE_CHECKING
 from .base import Base
+
+if TYPE_CHECKING:
+    from .representante import Representante
 
 # Equivalente a tabla 'alumnos'
 class Alumno(Base):

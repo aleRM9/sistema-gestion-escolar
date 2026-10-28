@@ -3,35 +3,25 @@ services:
   database:
     container_name: liceo_db
     image: postgres:18-alpine # Imágen oficial de PostgreSQL para Alpine
-    restart: always
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root_password
-      POSTGRES_DB: database
-    ports:
-      - "5432:5432" # Puerto estándar de PostgreSQL
+    env_file: .env
+    # No hay puertos, porque la base de datos debe ser accesible desde la red interna
+    healthcheck: # Verifica que PostgreSQL esté listo para recibir conexiones
+      test: ["CMD", "pg_isready", "-U", "$${POSTGRESS_USER} -d $${POSTGRESS_DB}"]
+      interval: 5s
+      retries: 10
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+
 
   # Servicio de backend
   backend:
     container_name: backend
     build: ./backend
-    restart: always
-    ports: 
-      - "8000:8000"
+    env_file: .env
+    ports: ["8000:8000"]
     environment:
-      POSTGRES_HOST: database
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root_password
-      POSTGRES_DB: database
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck: # Verifica que PostgreSQL esté listo para recibir conexiones
-      test: ["CMD-SHELL", "pg_isready -U root"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      POSTGRES_HOST: database # Declarar solo el host de la DB
     depends_on: 
       database:
         condition: service_healthy # Espera la verificación del healthcheck
