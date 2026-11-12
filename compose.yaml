@@ -1,0 +1,41 @@
+services:
+  # Servicio de base de datos
+  database:
+    container_name: liceo_db
+    image: postgres:17-alpine # Imágen oficial de PostgreSQL para Alpine
+    env_file: .env
+    # No hay puertos, porque la base de datos debe ser accesible desde la red interna
+    healthcheck: # Verifica que PostgreSQL esté listo para recibir conexiones
+      test: ["CMD-SHELL", "pg_isready", "-U", "${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+
+
+  # Servicio de backend
+  backend:
+    container_name: backend
+    build: ./backend
+    env_file: .env
+    ports: ["8000:8000"]
+    environment:
+      DB_HOST: database # Declarar solo el host de la DB
+    depends_on: 
+      database:
+        condition: service_healthy # Espera la verificación del healthcheck
+
+  # Servicio de frontend
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    restart: always
+    ports: 
+      - "3000:3000"
+    depends_on: 
+      - backend
+
+
+volumes:
+  postgres_data:
